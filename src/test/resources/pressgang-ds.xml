@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+    <datasource jndi-name="${ds.jndi.name}"
+                pool-name="pressgangccms" enabled="true"
+                use-java-context="true">
+        <connection-url>${ds.connection.url}</connection-url>
+        <driver>${ds.driver}</driver>
+        <security>
+            <user-name>${ds.username}</user-name>
+            <password>${ds.password}</password>
+        </security>
+        <timeout>
+            <idle-timeout-minutes>2</idle-timeout-minutes>
+        </timeout>
+    </datasource>
+</datasources>
