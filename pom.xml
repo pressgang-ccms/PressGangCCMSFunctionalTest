@@ -36,6 +36,7 @@
         <cargo.container>jboss71x</cargo.container>
         <cargo.servlet.port>9898</cargo.servlet.port>
         <cargo.home>${project.build.directory}/cargo/jboss</cargo.home>
+        <cargo.ajp.port>8809</cargo.ajp.port>
         <context.path>pressgang-ccms-ui</context.path>
 
         <!-- Data source -->
@@ -243,6 +244,7 @@
                                 <properties>
                                     <cargo.hostname>${cargo.host}</cargo.hostname>
                                     <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                                    <cargo.jboss.ajp.port>${cargo.ajp.port}</cargo.jboss.ajp.port>
                                     <cargo.jvmargs>
                                         <!-- NB: JDom parser doesn't like comments starting with '-' -->
                                         -XX:PermSize=512m -XX:MaxPermSize=1024 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled ${argLine} ${cargo.debug.jvm.args}
