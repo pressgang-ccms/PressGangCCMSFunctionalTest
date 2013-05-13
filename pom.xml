@@ -56,7 +56,7 @@
         <pressgang.target.artifactid>pressgang-ccms-ui</pressgang.target.artifactid>
         <pressgang.target.version>1.0-SNAPSHOT</pressgang.target.version>
         <pressgang.instance.url>http://${cargo.host}:${cargo.servlet.port}/${context.path}</pressgang.instance.url>
-
+        <pressgang.ping.timeout>60000</pressgang.ping.timeout>
         <webdriver.log.file>${project.build.directory}/browser_console.log</webdriver.log.file>
 
         <!-- Concordion output location -->
@@ -249,6 +249,7 @@
                                         <!-- NB: JDom parser doesn't like comments starting with '-' -->
                                         -XX:PermSize=512m -XX:MaxPermSize=1024 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled ${argLine} ${cargo.debug.jvm.args}
                                     </cargo.jvmargs>
+
                                 </properties>
                             </configuration>
                             <deployables>
@@ -262,6 +263,7 @@
                                     <artifactId>${pressgang.target.artifactid}</artifactId>
                                     <type>war</type>
                                     <pingURL>${pressgang.instance.url}/</pingURL>
+                                    <pingTimeout>${pressgang.ping.timeout}</pingTimeout>
                                     <properties>
                                         <context>${context.path}</context>
                                     </properties>
