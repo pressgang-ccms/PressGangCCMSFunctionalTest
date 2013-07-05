@@ -42,7 +42,7 @@
         <!-- Data source -->
         <jdbc.groupId>com.h2database</jdbc.groupId>
         <jdbc.artifactId>h2</jdbc.artifactId>
-        <jdbc.version>1.3.171</jdbc.version>
+        <jdbc.version>1.3.161</jdbc.version>
 
         <ds.jndi.name>java:jboss/datasources/pressGangDatasource</ds.jndi.name>
         <ds.driver>h2</ds.driver>
@@ -249,15 +249,16 @@
                                         <!-- NB: JDom parser doesn't like comments starting with '-' -->
                                         -XX:PermSize=512m -XX:MaxPermSize=1024 -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled ${cargo.debug.jvm.args}
                                     </cargo.jvmargs>
-
                                 </properties>
+
+                                <configfiles>
+                                    <configfile>
+                                        <file>${project.build.testOutputDirectory}/pressgang-ds.xml</file>
+                                        <todir>deployments</todir>
+                                    </configfile>
+                                </configfiles>
                             </configuration>
                             <deployables>
-                                <!--TODO get datasource configured and deploying -->
-                                <!--<deployable>-->
-                                    <!--<type>file</type>-->
-                                    <!--<location>${project.build.testOutputDirectory}/pressgang-ds.xml</location>-->
-                                <!--</deployable>-->
                                 <deployable>
                                     <groupId>${pressgang.target.groupid}</groupId>
                                     <artifactId>${pressgang.target.artifactid}</artifactId>
