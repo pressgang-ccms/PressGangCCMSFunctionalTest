@@ -47,7 +47,7 @@
         <ds.jndi.name>java:jboss/datasources/pressGangDatasource</ds.jndi.name>
         <ds.driver>h2</ds.driver>
         <ds.driver.class>org.h2.Driver</ds.driver.class>
-        <ds.connection.url>jdbc:h2:file:${project.build.directory}/h2/pressgang</ds.connection.url>
+        <ds.connection.url>jdbc:h2:file:${project.build.directory}/h2/pressgang;MODE=MYSQL</ds.connection.url>
         <ds.username>sa</ds.username>
         <ds.password>sa</ds.password>
 
