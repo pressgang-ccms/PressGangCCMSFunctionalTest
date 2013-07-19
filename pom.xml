@@ -317,16 +317,14 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <tasks>
-                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
-                                            <zipfileset dir="${project.build.testOutputDirectory}"
-                                                        includes="${project.build.testOutputDirectory}/web.xml" prefix="WEB-INF"/>
-                                        </zip>
-                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
-                                            <zipfileset dir="${project.build.testOutputDirectory}"
-                                                        includes="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF"/>
-                                        </zip>
-                                    </tasks>
+                                    <target>
+                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
+                                            <zipfileset file="${project.build.testOutputDirectory}/web.xml" fullpath="WEB-INF/web.xml"/>
+                                        </war>
+                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
+                                            <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF/persistence.xml"/>
+                                        </war>
+                                    </target>
                                 </configuration>
                                 <phase>pre-integration-test</phase>
                                 <goals>
