@@ -331,6 +331,7 @@
                                         <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
                                             <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" fullpath="WEB-INF/classes/META-INF/persistence.xml"/>
                                         </war>
+                                        <delete file="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war.skipdeploy"/>
                                     </target>
                                 </configuration>
                                 <phase>pre-integration-test</phase>
