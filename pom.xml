@@ -318,11 +318,18 @@
                             <execution>
                                 <configuration>
                                     <target>
+                                        <!-- touching the files means they are considered newer than the war files being updated -->
+                                        <touch datetime="now">
+                                            <fileset file="${project.build.testOutputDirectory}/web.xml" />
+                                        </touch>
+                                        <touch datetime="now">
+                                            <fileset file="${project.build.testOutputDirectory}/persistence.xml" />
+                                        </touch>
                                         <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
                                             <zipfileset file="${project.build.testOutputDirectory}/web.xml" fullpath="WEB-INF/web.xml"/>
                                         </war>
                                         <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
-                                            <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF/persistence.xml"/>
+                                            <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" fullpath="WEB-INF/classes/META-INF/persistence.xml"/>
                                         </war>
                                     </target>
                                 </configuration>
