@@ -21,17 +21,15 @@
 
 package org.jboss.pressgang.ccms.workflow;
 
-import org.jboss.pressgang.ccms.page.AbstractPage;
 import org.jboss.pressgang.ccms.page.HomePage;
 import org.jboss.pressgang.ccms.page.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
 
-public class AbstractWebWorkFlow {
+public class AbstractWebWorkflow {
     protected final WebDriver driver;
     protected final String hostUrl;
 
-    public AbstractWebWorkFlow() {
+    public AbstractWebWorkflow() {
         String baseUrl = WebDriverFactory.INSTANCE.getHostUrl();
         hostUrl = appendTrailingSlash(baseUrl);
         driver = WebDriverFactory.INSTANCE.getDriver();

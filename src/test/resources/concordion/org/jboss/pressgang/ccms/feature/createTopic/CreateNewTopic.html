@@ -3,23 +3,16 @@
     </head>
     <body>
         <p>
-            Given a user who is on the PressGang CCMS Home page
+            Given a user <span c:set="#username">testUser</span> who is on the PressGang CCMS Home page
         </p>
         <p>
-            When they select Create Topic, enter valid XML and click Save
+            When they select Create Topic, enter valid XML and the topic title <span c:set="#title">Test title</span> and click <span c:execute="#createTopicPage = createNewTopic(#username, #title)">Save</span>, entering their username
         </p>
         <p>
-            Then a dialog box appears
-        </p>
-        <p>
-            When they enter a user name and click OK
-        </p>
-        <p>
-            Then the topic is saved.
+            Then a topic with the title Test title is saved and a topic ID is allocated.
         </p>
         <span ext:screenshot=""/>
         <p class="info">
-            Extra info
         </p>
     </body>
 </html>

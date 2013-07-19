@@ -21,18 +21,16 @@
 
 package org.jboss.pressgang.ccms.page;
 
+import org.jboss.pressgang.ccms.page.topic.CreateTopicPage;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 public class HomePage extends AbstractPage {
 
-    // private static final By BY_SIGN_IN = By.id("Sign_in");
-
-//    @FindBy(id = "Projects")
-//    private WebElement projectsLink;
-
     public HomePage(final WebDriver driver) {
         super(driver);
+    }
+
+    public CreateTopicPage goToCreateTopic() {
+        return gotToMainMenuPage("Create Topic", CreateTopicPage.class);
     }
 }

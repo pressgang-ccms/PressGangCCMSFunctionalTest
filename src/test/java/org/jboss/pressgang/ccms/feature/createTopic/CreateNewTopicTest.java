@@ -1,11 +1,14 @@
 package org.jboss.pressgang.ccms.feature.createTopic;
 
+import com.google.common.base.Optional;
 import org.concordion.api.extension.Extensions;
 import org.concordion.ext.ScreenshotExtension;
 import org.concordion.ext.TimestampFormatterExtension;
 import org.concordion.integration.junit4.ConcordionRunner;
 import org.jboss.pressgang.ccms.concordion.CustomResourceExtension;
-import org.junit.Before;
+import org.jboss.pressgang.ccms.page.topic.CreateTopicPage;
+import org.jboss.pressgang.ccms.util.TestConstants;
+import org.jboss.pressgang.ccms.workflow.CreateTopicWorkflow;
 import org.junit.runner.RunWith;
 
 /**
@@ -15,12 +18,10 @@ import org.junit.runner.RunWith;
 @Extensions({ScreenshotExtension.class, TimestampFormatterExtension.class, CustomResourceExtension.class})
 public class CreateNewTopicTest {
 
-    @Before
-    public void beforeMethod() {
-        // Do stuff
+    public CreateTopicPage createNewTopic(String username, String title) {
+        return new CreateTopicWorkflow().createNewTopic(TestConstants.VALID_TOPIC_XML, Optional.<String>absent(),
+                Optional.of(username), true, title);
     }
 
-//    public CreateTopicPage createNewTopic() {
-//        return new CreateTopicWorkflow.createNewTopic();
-//    }
+    //TODO add verification methods for created topic
 }

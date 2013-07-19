@@ -22,6 +22,7 @@
 package org.jboss.pressgang.ccms.page;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -40,11 +41,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFaceText;
+
 @Slf4j
 public class AbstractPage {
     private final WebDriver driver;
     private final FluentWait<WebDriver> ajaxWaitForTenSec;
     private List<WebElement> shortcutMenuItems = Collections.emptyList();
+    private Optional<List<String>> menuItemTexts = Optional.absent();
 
     @FindBy(className = "ShortcutPanel")
     WebElement shortcutMenu;
@@ -64,25 +68,33 @@ public class AbstractPage {
         return driver.getTitle();
     }
 
-    public List<String> getNavigationMenuItems() {
-        Collection<String> menuItemTexts = Collections2.transform(shortcutMenuItems, new Function<WebElement, String>() {
-            @Override
-            public String apply(WebElement div) {
-                return (div.findElement(By.className("html-face")).getText());
-            }
-        });
-        return ImmutableList.copyOf(menuItemTexts);
+    public <T> List<T> getNavigationMenuItemNames(List<WebElement> menuItems, Function<WebElement, T> transformFunction) {
+        Collection<T> result = Collections2.transform(menuItems, transformFunction);
+        return ImmutableList.copyOf(result);
     }
 
-    public <P> P goToPage(String menuItemText, Class<P> pageClass) {
+    public <P> P goToMenuPage(String menuItemText, Class<P> pageClass, List<WebElement> menuItems,
+                              List<String> navigationMenuItemNames) {
         log.info("click {} and go to page {}", menuItemText, pageClass.getName());
-        List<String> navigationMenuItems = getNavigationMenuItems();
-        int menuItemIndex = navigationMenuItems.indexOf(menuItemText);
+        int menuItemIndex = navigationMenuItemNames.indexOf(menuItemText);
 
         Preconditions.checkState(menuItemIndex >= 0, menuItemText + " is not available in navigation menu");
 
-        shortcutMenuItems.get(menuItemIndex).click();
+        menuItems.get(menuItemIndex).click();
         return PageFactory.initElements(driver, pageClass);
+    }
+
+    public List<String> getMainNavigationMenuItemNames() {
+        if (!menuItemTexts.isPresent()) {
+            List<String> resultList = getNavigationMenuItemNames(shortcutMenuItems, findDivButtonNamesByHtmlFaceText());
+            menuItemTexts = Optional.of(resultList);
+            return resultList;
+        }
+        return menuItemTexts.get();
+    }
+
+    public <P> P gotToMainMenuPage(String menuItemText, Class<P> pageClass) {
+        return goToMenuPage(menuItemText, pageClass, shortcutMenuItems, getMainNavigationMenuItemNames());
     }
 
     public <P> P goToUrl(String url, P page) {
