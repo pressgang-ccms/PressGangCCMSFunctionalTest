@@ -63,8 +63,6 @@
         <pressgang.server.target.groupid>org.jboss.pressgang.ccms</pressgang.server.target.groupid>
         <pressgang.server.target.artifactid>pressgang-ccms-server</pressgang.server.target.artifactid>
         <pressgang.server.target.version>1.0-SNAPSHOT</pressgang.server.target.version>
-        <pressgang.server.context.path>pressgang-ccms-server</pressgang.server.context.path>
-        <pressgang.server.instance.url>http://${cargo.host}:${cargo.servlet.port}/${pressgang.server.context.path}</pressgang.server.instance.url>
 
         <!-- Concordion output location -->
         <concordion.output.dir>${project.build.directory}/concordion</concordion.output.dir>
@@ -271,7 +269,7 @@
                                         <todir>deployments</todir>
                                     </configfile>
                                     <configfile>
-                                        <file>${project.build.testOutputDirectory}/pressgang-ccms-server.war.skipdeploy</file>
+                                        <file>${project.build.testOutputDirectory}/pressgang-ccms.war.skipdeploy</file>
                                         <todir>deployments</todir>
                                     </configfile>
                                 </configfiles>
@@ -292,9 +290,6 @@
                                     <groupId>${pressgang.server.target.groupid}</groupId>
                                     <artifactId>${pressgang.server.target.artifactid}</artifactId>
                                     <type>war</type>
-                                    <properties>
-                                        <context>${pressgang.server.context.path}</context>
-                                    </properties>
                                 </deployable>
                             </deployables>
                         </configuration>
@@ -323,11 +318,11 @@
                             <execution>
                                 <configuration>
                                     <tasks>
-                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms-server.war" update="true">
+                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
                                             <zipfileset dir="${project.build.testOutputDirectory}"
                                                         includes="${project.build.testOutputDirectory}/web.xml" prefix="WEB-INF"/>
                                         </zip>
-                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms-server.war" update="true">
+                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
                                             <zipfileset dir="${project.build.testOutputDirectory}"
                                                         includes="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF"/>
                                         </zip>
@@ -424,7 +419,7 @@
                     <include>**/*.sql</include>
                     <include>**/log4j.xml</include>
                     <include>**/pressgang-ds.xml</include>
-                    <include>**/pressgang-ccms-server.war.skipdeploy</include>
+                    <include>**/pressgang-ccms.war.skipdeploy</include>
                     <include>**/web.xml</include>
                     <include>**/persistence.xml</include>
                 </includes>
