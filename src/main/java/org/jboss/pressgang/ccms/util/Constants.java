@@ -35,7 +35,8 @@ public enum Constants {
     webDriverType("webdriver.type"),
     chrome, firefox, htmlUnit;
 
-    public static final int FIFTY_SEC = 50000;
+    public static final int FIFTY_SEC_IN_MS = 50000;
+    public static final int THIRTY_SEC = 30;
     private String value;
 
     private Constants(String value) {

@@ -22,6 +22,4 @@ public class CreateNewTopicTest {
         return new CreateTopicWorkflow().createNewTopic(TestConstants.VALID_TOPIC_XML, Optional.<String>absent(),
                 Optional.of(username), true, title);
     }
-
-    //TODO add verification methods for created topic
 }
