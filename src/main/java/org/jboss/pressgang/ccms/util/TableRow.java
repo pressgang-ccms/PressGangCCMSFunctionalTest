@@ -25,6 +25,6 @@ public class TableRow {
 
     @Override
     public String toString() {
-        return row.toString();
+        return row.getText();
     }
 }

@@ -53,18 +53,6 @@ public enum Constants {
         return Objects.toStringHelper(this).add("name", name()).add("value", value).toString();
     }
 
-    public static Properties loadProperties() {
-        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(propFile.value);
-        Properties properties = new Properties();
-        try {
-            properties.load(inputStream);
-            return properties;
-        } catch (IOException e) {
-            log.error("can't load {}", propFile);
-            throw new IllegalStateException("Can't load setup.properties");
-        }
-    }
-
     public String value() {
         return value;
     }

@@ -26,13 +26,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.FluentWait;
 
 import java.util.Collection;
 import java.util.List;
+
+import static java.util.concurrent.TimeUnit.*;
 
 public class WebElementUtil {
     private WebElementUtil() {
@@ -50,27 +50,26 @@ public class WebElementUtil {
         return ImmutableList.copyOf(Collections2.transform(webElements, new WebElementToInnerHTMLFunction(driver)));
     }
 
-    public static List<TableRow> getTableRows(WebDriver driver, By byQueryForTable) {
-        WebElement table = driver.findElement(byQueryForTable);
-        return getTableRows(table);
-    }
-
-    public static List<TableRow> getTableRows(WebElement table) {
-        Preconditions.checkArgument(table.getTagName().equalsIgnoreCase("table"), "By query must return a table");
-
-        List<WebElement> rows = table.findElements(By.xpath(".//tbody/tr"));
-        return ImmutableList.copyOf(Lists.transform(rows, WebElementTableRowFunction.FUNCTION));
-    }
-
-    public static List<String> getColumnContents(List<TableRow> tableRows, final int columnIndex) {
-        return ImmutableList.copyOf(Lists.transform(tableRows, new Function<TableRow, String>() {
+    public static List<TableRow> getTableRows(WebDriver driver, final By byQueryForTable) {
+        return waitForTenSeconds(driver).until(new Function<WebDriver, List<TableRow>>() {
             @Override
-            public String apply(TableRow from) {
-                List<String> cellContents = from.getCellContents();
-                Preconditions.checkElementIndex(columnIndex, cellContents.size(), "column index");
-                return cellContents.get(columnIndex);
+            public List<TableRow> apply(WebDriver webDriver) {
+                final WebElement table = webDriver.findElement(byQueryForTable);
+                List<WebElement> rows = table.findElements(By.xpath(".//tbody[1]/tr"));
+                return ImmutableList.copyOf(Lists.transform(rows, WebElementTableRowFunction.FUNCTION));
             }
-        }));
+        });
+    }
+
+    public static List<TableRow> getTableRows(WebDriver driver, final WebElement table) {
+        return waitForTenSeconds(driver).until(new Function<WebDriver, List<TableRow>>() {
+            @Override
+            public List<TableRow> apply(WebDriver webDriver) {
+
+                List<WebElement> rows = table.findElements(By.xpath(".//tbody[1]/tr"));
+                return ImmutableList.copyOf(Lists.transform(rows, WebElementTableRowFunction.FUNCTION));
+            }
+        });
     }
 
     public static ImmutableList<List<String>> transformToTwoDimensionList(List<TableRow> tableRows) {
@@ -80,6 +79,45 @@ public class WebElementUtil {
                 return from.getCellContents();
             }
         }));
+    }
+
+    public static FluentWait<WebDriver> waitForSeconds(WebDriver webDriver, int durationInSec) {
+        return new FluentWait<WebDriver>(webDriver).withTimeout(durationInSec, SECONDS).pollingEvery(1, SECONDS).ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
+    }
+
+    public static FluentWait<WebDriver> waitForTenSeconds(WebDriver webDriver) {
+        return waitForSeconds(webDriver, 10);
+    }
+
+    public static List<String> getColumnContents(WebDriver driver, final By by, final int columnIndex) {
+        return waitForTenSeconds(driver).until(new Function<WebDriver, List<String>>() {
+            @Override
+            public List<String> apply(WebDriver input) {
+                WebElement table = input.findElement(by);
+                List<WebElement> rows = table.findElements(By.xpath(".//tbody[1]/tr"));
+                List<TableRow> tableRows = Lists.transform(rows, WebElementTableRowFunction.FUNCTION);
+                return ImmutableList.copyOf(Lists.transform(tableRows, new Function<TableRow, String>() {
+                    @Override
+                    public String apply(TableRow from) {
+                        List<String> cellContents = from.getCellContents();
+                        Preconditions.checkElementIndex(columnIndex, cellContents.size(), "column index");
+                        return cellContents.get(columnIndex);
+                    }
+                }));
+            }
+        });
+    }
+
+    public static List<List<String>> getTwoDimensionList(WebDriver driver, final By by) {
+        return waitForTenSeconds(driver).until(new Function<WebDriver, List<List<String>>>() {
+            @Override
+            public List<List<String>> apply(WebDriver input) {
+                final WebElement table = input.findElement(by);
+                List<WebElement> rows = table.findElements(By.xpath(".//tbody[1]/tr"));
+                List<TableRow> tableRows = Lists.transform(rows, WebElementTableRowFunction.FUNCTION);
+                return transformToTwoDimensionList(tableRows);
+            }
+        });
     }
 
     private static class WebElementToInnerHTMLFunction implements Function<WebElement, String> {

@@ -21,15 +21,15 @@
 
 package org.jboss.pressgang.ccms.page;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
+import com.google.common.base.*;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.util.WebElementUtil;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
@@ -38,8 +38,8 @@ import org.openqa.selenium.support.ui.FluentWait;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 
+//TODO update for PressGang
 @Slf4j
 public class AbstractPage {
     private final WebDriver driver;
@@ -52,12 +52,8 @@ public class AbstractPage {
     public AbstractPage(final WebDriver driver) {
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, 10), this);
         this.driver = driver;
-        ajaxWaitForTenSec = waitForSeconds(driver, 10);
+        ajaxWaitForTenSec = WebElementUtil.waitForTenSeconds(driver);
         navMenuItems = navBar.findElements(By.tagName("a"));
-    }
-
-    public static FluentWait<WebDriver> waitForSeconds(WebDriver webDriver, int durationInSec) {
-        return new FluentWait<WebDriver>(webDriver).withTimeout(durationInSec, SECONDS).pollingEvery(1, SECONDS).ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
     }
 
     public WebDriver getDriver() {
@@ -68,9 +64,30 @@ public class AbstractPage {
         return driver.getTitle();
     }
 
-    public List<String> getBreadcrumbs() {
-        List<WebElement> breadcrumbs = driver.findElement(By.id("breadcrumbs_panel")).findElements(By.className("breadcrumbs_display"));
+    public List<String> getBreadcrumbLinks() {
+        List<WebElement> breadcrumbs = driver.findElement(By.id("breadcrumbs_panel")).findElements(By.className("breadcrumbs_link"));
         return WebElementUtil.elementsToText(breadcrumbs);
+    }
+
+    public String getLastBreadCrumbText() {
+        WebElement breadcrumb = driver.findElement(By.id("breadcrumbs_panel")).findElement(By.className("breadcrumbs_display"));
+        return breadcrumb.getText();
+    }
+
+    public <P> P clickBreadcrumb(final String link, Class<P> pageClass) {
+        List<WebElement> breadcrumbs = driver.findElement(By.id("breadcrumbs_panel")).findElements(By.className("breadcrumbs_link"));
+        Predicate<WebElement> predicate = new Predicate<WebElement>() {
+            @Override
+            public boolean apply(WebElement input) {
+                return input.getText().equals(link);
+            }
+        };
+        Optional<WebElement> breadcrumbLink = Iterables.tryFind(breadcrumbs, predicate);
+        if (breadcrumbLink.isPresent()) {
+            breadcrumbLink.get().click();
+            return PageFactory.initElements(driver, pageClass);
+        }
+        throw new RuntimeException("can not find " + link + " in breadcrumb: " + WebElementUtil.elementsToText(breadcrumbs));
     }
 
     public List<String> getNavigationMenuItems() {
@@ -114,8 +131,28 @@ public class AbstractPage {
         }
     }
 
-    protected List<String> getErrors() {
+    protected void clickSaveAndExpectErrors(WebElement saveButton) {
+        saveButton.click();
+        List<String> errors = getErrors();
+        if (errors.isEmpty()) {
+            throw new RuntimeException("Errors expected, none found.");
+        }
+    }
+
+    public List<String> getErrors() {
         List<WebElement> errorSpans = getDriver().findElements(By.xpath("//span[@class='errors']"));
         return WebElementUtil.elementsToText(errorSpans);
+    }
+
+    protected <P extends AbstractPage> P refreshPageUntil(P currentPage, Predicate<WebDriver> predicate) {
+        waitForTenSec().until(predicate);
+        PageFactory.initElements(driver, currentPage);
+        return currentPage;
+    }
+
+    protected <P extends AbstractPage, T> T refreshPageUntil(P currentPage, Function<WebDriver, T> function) {
+        T done = waitForTenSec().until(function);
+        PageFactory.initElements(driver, currentPage);
+        return done;
     }
 }

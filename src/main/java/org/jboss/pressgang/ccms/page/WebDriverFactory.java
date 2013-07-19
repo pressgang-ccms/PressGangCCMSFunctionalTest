@@ -22,8 +22,11 @@
 package org.jboss.pressgang.ccms.page;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import org.jboss.pressgang.ccms.util.PropertiesHolder;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -31,10 +34,13 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.service.DriverService;
 
 import static org.jboss.pressgang.ccms.util.Constants.*;
 
@@ -43,13 +49,12 @@ public enum WebDriverFactory {
     INSTANCE;
 
     private WebDriver driver;
-    private Properties properties;
+    private DriverService driverService;
 
     public WebDriver getDriver() {
         if (driver == null) {
             synchronized (this) {
                 if (driver == null) {
-                    properties = loadProperties();
                     driver = createDriver();
                     driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
                     Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -60,14 +65,14 @@ public enum WebDriverFactory {
     }
 
     public String getHostUrl() {
-        if (properties == null || driver == null) {
+        if (driver == null) {
             getDriver();
         }
-        return properties.getProperty(pressGangInstance.value());
+        return PropertiesHolder.getProperty(pressGangInstance.value());
     }
 
     private WebDriver createDriver() {
-        String driverType = properties.getProperty(webDriverType.value(), "htmlUnit");
+        String driverType = PropertiesHolder.getProperty(webDriverType.value(), "htmlUnit");
         if (driverType.equalsIgnoreCase(chrome.value())) {
             return configureChromeDriver();
         } else if (driverType.equalsIgnoreCase(firefox.value())) {
@@ -82,13 +87,24 @@ public enum WebDriverFactory {
     }
 
     private WebDriver configureChromeDriver() {
+        driverService = new ChromeDriverService.Builder()
+                .usingDriverExecutable(new File(PropertiesHolder.properties.getProperty("webdriver.chrome.driver")))
+                .usingAnyFreePort()
+                .withEnvironment(ImmutableMap.of("DISPLAY", PropertiesHolder.properties.getProperty("webdriver.display")))
+                .withLogFile(new File(PropertiesHolder.properties.getProperty("webdriver.log")))
+                .build();
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-        capabilities.setCapability("chrome.binary", "/opt/google/chrome/google-chrome");
-        return new ChromeDriver(capabilities);
+        capabilities.setCapability("chrome.binary", PropertiesHolder.properties.getProperty("webdriver.chrome.bin"));
+        try {
+            driverService.start();
+        } catch (IOException e) {
+            throw new RuntimeException("fail to start chrome driver service");
+        }
+        return new RemoteWebDriver(driverService.getUrl(), capabilities);
     }
 
     private WebDriver configureFirefoxDriver() {
-        final String pathToFirefox = Strings.emptyToNull(properties.getProperty("firefox.path"));
+        final String pathToFirefox = Strings.emptyToNull(PropertiesHolder.properties.getProperty("firefox.path"));
 
         FirefoxBinary firefoxBinary = null;
         if (pathToFirefox != null) {
@@ -96,7 +112,12 @@ public enum WebDriverFactory {
         } else {
             firefoxBinary = new FirefoxBinary();
         }
-
+      /*
+       * TODO: Evaluate current timeout
+       * Timeout the connection in 30 seconds
+       * firefoxBinary.setTimeout(TimeUnit.SECONDS.toMillis(30));
+       */
+        firefoxBinary.setEnvironmentProperty("DISPLAY", PropertiesHolder.properties.getProperty("webdriver.display"));
         return new FirefoxDriver(firefoxBinary, makeFirefoxProfile());
     }
 
@@ -106,6 +127,13 @@ public enum WebDriverFactory {
             // TODO - look at FirefoxDriver.getProfile().
         }
         final FirefoxProfile firefoxProfile = new FirefoxProfile();
+
+      /*
+       * TODO: Evaluate need for this
+       * Disable unnecessary connection to sb-ssl.google.com
+       * firefoxProfile.setPreference("browser.safebrowsing.malware.enabled", false);
+       */
+
         firefoxProfile.setAlwaysLoadNoFocusLib(true);
         firefoxProfile.setEnableNativeEvents(true);
         firefoxProfile.setAcceptUntrustedCertificates(true);
@@ -114,15 +142,18 @@ public enum WebDriverFactory {
 
     private class ShutdownHook extends Thread {
         public void run() {
-            // If WebDriver is running quit.
+            // If webdriver is running quit.
             WebDriver driver = getDriver();
             if (driver != null) {
                 try {
-                    log.info("Quitting WebDriver.");
+                    log.info("Quitting webdriver.");
                     driver.quit();
                 } catch (Throwable e) {
                     // Ignoring driver tear down errors.
                 }
+            }
+            if (driverService != null && driverService.isRunning()) {
+                driverService.stop();
             }
         }
     }
