@@ -59,6 +59,10 @@
         <pressgang.ping.timeout>60000</pressgang.ping.timeout>
         <webdriver.log.file>${project.build.directory}/browser_console.log</webdriver.log.file>
 
+        <pressgang.server.target.groupid>org.jboss.pressgang.ccms</pressgang.server.target.groupid>
+        <pressgang.server.target.artifactid>pressgang-ccms-server</pressgang.server.target.artifactid>
+        <pressgang.server.target.version>1.0-SNAPSHOT</pressgang.server.target.version>
+
         <!-- Concordion output location -->
         <concordion.output.dir>${project.build.directory}/concordion</concordion.output.dir>
         <!-- On Jenkins, this needs to be set to empty so that Cargo can shut down; see http://stackoverflow.com/questions/1096642/tomcat-failed-to-shutdown -->
@@ -73,6 +77,13 @@
             <groupId>${pressgang.target.groupid}</groupId>
             <artifactId>${pressgang.target.artifactid}</artifactId>
             <version>${pressgang.target.version}</version>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>${pressgang.server.target.groupid}</groupId>
+            <artifactId>${pressgang.server.target.artifactid}</artifactId>
+            <version>${pressgang.server.target.version}</version>
             <type>war</type>
         </dependency>
 
@@ -256,6 +267,10 @@
                                         <file>${project.build.testOutputDirectory}/pressgang-ds.xml</file>
                                         <todir>deployments</todir>
                                     </configfile>
+                                    <configfile>
+                                        <file>${project.build.testOutputDirectory}/pressgang-ccms-server-1.0-SNAPSHOT.war.skipdeploy</file>
+                                        <todir>deployments</todir>
+                                    </configfile>
                                 </configfiles>
                             </configuration>
                             <deployables>
@@ -268,6 +283,12 @@
                                     <properties>
                                         <context>${context.path}</context>
                                     </properties>
+                                </deployable>
+
+                                <deployable>
+                                    <groupId>${pressgang.server.target.groupid}</groupId>
+                                    <artifactId>${pressgang.server.target.artifactid}</artifactId>
+                                    <type>war</type>
                                 </deployable>
                             </deployables>
                         </configuration>
@@ -284,6 +305,31 @@
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <tasks>
+                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms-server-1.0-SNAPSHOT.war" update="true">
+                                            <zipfileset dir="${project.build.testOutputDirectory}"
+                                                        includes="${project.build.testOutputDirectory}/web.xml" prefix="WEB-INF"/>
+                                        </zip>
+                                        <zip destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms-server-1.0-SNAPSHOT.war" update="true">
+                                            <zipfileset dir="${project.build.testOutputDirectory}"
+                                                        includes="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF"/>
+                                        </zip>
+                                    </tasks>
+                                </configuration>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -372,6 +418,9 @@
                     <include>**/*.sql</include>
                     <include>**/log4j.xml</include>
                     <include>**/pressgang-ds.xml</include>
+                    <include>**/pressgang-ccms-server-1.0-SNAPSHOT.war.skipdeploy</include>
+                    <include>**/web.xml</include>
+                    <include>**/persistence.xml</include>
                 </includes>
             </testResource>
             <testResource>
