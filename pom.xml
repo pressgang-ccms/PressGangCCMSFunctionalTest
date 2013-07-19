@@ -44,7 +44,7 @@
         <jdbc.artifactId>h2</jdbc.artifactId>
         <jdbc.version>1.3.161</jdbc.version>
 
-        <ds.jndi.name>java:jboss/datasources/pressGangDatasource</ds.jndi.name>
+        <ds.jndi.name>java:/PressGangCCMSDatasource</ds.jndi.name>
         <ds.driver>h2</ds.driver>
         <ds.driver.class>org.h2.Driver</ds.driver.class>
         <ds.connection.url>jdbc:h2:file:${project.build.directory}/h2/pressgang;MODE=MYSQL</ds.connection.url>
@@ -54,7 +54,7 @@
         <!-- Target PressGang instance -->
         <pressgang.target.groupid>org.jboss.pressgang.ccms</pressgang.target.groupid>
         <pressgang.target.artifactid>pressgang-ccms-ui</pressgang.target.artifactid>
-        <pressgang.target.version>1.0-SNAPSHOT</pressgang.target.version>
+        <pressgang.target.version>1.1-SNAPSHOT</pressgang.target.version>
         <context.path>pressgang-ccms-ui</context.path>
         <pressgang.instance.url>http://${cargo.host}:${cargo.servlet.port}/${context.path}</pressgang.instance.url>
         <pressgang.ping.timeout>60000</pressgang.ping.timeout>
@@ -62,7 +62,7 @@
 
         <pressgang.server.target.groupid>org.jboss.pressgang.ccms</pressgang.server.target.groupid>
         <pressgang.server.target.artifactid>pressgang-ccms-server</pressgang.server.target.artifactid>
-        <pressgang.server.target.version>1.0-SNAPSHOT</pressgang.server.target.version>
+        <pressgang.server.target.version>1.1-SNAPSHOT</pressgang.server.target.version>
 
         <!-- Concordion output location -->
         <concordion.output.dir>${project.build.directory}/concordion</concordion.output.dir>
@@ -312,29 +312,6 @@
                     </plugin>
 
                     <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <configuration>
-                                    <target>
-                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
-                                            <zipfileset file="${project.build.testOutputDirectory}/web.xml" fullpath="WEB-INF/web.xml"/>
-                                        </war>
-                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
-                                            <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" prefix="WEB-INF/classes/META-INF/persistence.xml"/>
-                                        </war>
-                                    </target>
-                                </configuration>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>sql-maven-plugin</artifactId>
                         <version>${sqlplugin.version}</version>
@@ -372,6 +349,40 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <target>
+                                        <!-- touching the files means they are considered newer than the war files being updated -->
+                                        <touch datetime="now">
+                                            <fileset file="${project.build.testOutputDirectory}/web.xml" />
+                                        </touch>
+                                        <touch datetime="now">
+                                            <fileset file="${project.build.testOutputDirectory}/persistence.xml" />
+                                        </touch>
+                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
+                                            <zipfileset file="${project.build.testOutputDirectory}/web.xml" fullpath="WEB-INF/web.xml"/>
+                                        </war>
+                                        <war destfile="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war" update="true">
+                                            <zipfileset file="${project.build.testOutputDirectory}/persistence.xml" fullpath="WEB-INF/classes/META-INF/persistence.xml"/>
+                                        </war>
+                                        <delete file="${project.build.directory}/cargo/jboss/configuration/deployments/pressgang-ccms.war.skipdeploy"/>
+                                        <sleep seconds="10"/>
+                                    </target>
+                                </configuration>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+
 
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
