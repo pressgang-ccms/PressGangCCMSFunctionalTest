@@ -21,10 +21,11 @@
 
 package org.jboss.pressgang.ccms.page;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.util.WebElementUtil;
 import org.openqa.selenium.By;
@@ -39,21 +40,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-//TODO update for PressGang
 @Slf4j
 public class AbstractPage {
     private final WebDriver driver;
     private final FluentWait<WebDriver> ajaxWaitForTenSec;
-    private List<WebElement> navMenuItems = Collections.emptyList();
+    private List<WebElement> shortcutMenuItems = Collections.emptyList();
 
-    @FindBy(className = "navBar")
-    WebElement navBar;
+    @FindBy(className = "ShortcutPanel")
+    WebElement shortcutMenu;
 
     public AbstractPage(final WebDriver driver) {
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, 10), this);
         this.driver = driver;
         ajaxWaitForTenSec = WebElementUtil.waitForTenSeconds(driver);
-        navMenuItems = navBar.findElements(By.tagName("a"));
+        shortcutMenuItems = shortcutMenu.findElements(By.className("gwt-PushButton"));
     }
 
     public WebDriver getDriver() {
@@ -64,54 +64,27 @@ public class AbstractPage {
         return driver.getTitle();
     }
 
-    public List<String> getBreadcrumbLinks() {
-        List<WebElement> breadcrumbs = driver.findElement(By.id("breadcrumbs_panel")).findElements(By.className("breadcrumbs_link"));
-        return WebElementUtil.elementsToText(breadcrumbs);
-    }
-
-    public String getLastBreadCrumbText() {
-        WebElement breadcrumb = driver.findElement(By.id("breadcrumbs_panel")).findElement(By.className("breadcrumbs_display"));
-        return breadcrumb.getText();
-    }
-
-    public <P> P clickBreadcrumb(final String link, Class<P> pageClass) {
-        List<WebElement> breadcrumbs = driver.findElement(By.id("breadcrumbs_panel")).findElements(By.className("breadcrumbs_link"));
-        Predicate<WebElement> predicate = new Predicate<WebElement>() {
-            @Override
-            public boolean apply(WebElement input) {
-                return input.getText().equals(link);
-            }
-        };
-        Optional<WebElement> breadcrumbLink = Iterables.tryFind(breadcrumbs, predicate);
-        if (breadcrumbLink.isPresent()) {
-            breadcrumbLink.get().click();
-            return PageFactory.initElements(driver, pageClass);
-        }
-        throw new RuntimeException("can not find " + link + " in breadcrumb: " + WebElementUtil.elementsToText(breadcrumbs));
-    }
-
     public List<String> getNavigationMenuItems() {
-        Collection<String> linkTexts = Collections2.transform(navMenuItems, new Function<WebElement, String>() {
+        Collection<String> menuItemTexts = Collections2.transform(shortcutMenuItems, new Function<WebElement, String>() {
             @Override
-            public String apply(WebElement link) {
-                return link.getText();
+            public String apply(WebElement div) {
+                return (div.findElement(By.className("html-face")).getText());
             }
         });
-        return ImmutableList.copyOf(linkTexts);
+        return ImmutableList.copyOf(menuItemTexts);
     }
 
-    public <P> P goToPage(String navLinkText, Class<P> pageClass) {
-        log.info("click {} and go to page {}", navLinkText, pageClass.getName());
+    public <P> P goToPage(String menuItemText, Class<P> pageClass) {
+        log.info("click {} and go to page {}", menuItemText, pageClass.getName());
         List<String> navigationMenuItems = getNavigationMenuItems();
-        int menuItemIndex = navigationMenuItems.indexOf(navLinkText);
+        int menuItemIndex = navigationMenuItems.indexOf(menuItemText);
 
-        Preconditions.checkState(menuItemIndex >= 0, navLinkText + " is not available in navigation menu");
+        Preconditions.checkState(menuItemIndex >= 0, menuItemText + " is not available in navigation menu");
 
-        navMenuItems.get(menuItemIndex).click();
+        shortcutMenuItems.get(menuItemIndex).click();
         return PageFactory.initElements(driver, pageClass);
     }
 
-    // TODO this doesn't seem useful
     public <P> P goToUrl(String url, P page) {
         log.info("go to url: {}", url);
         driver.get(url);
@@ -121,27 +94,6 @@ public class AbstractPage {
 
     public FluentWait<WebDriver> waitForTenSec() {
         return ajaxWaitForTenSec;
-    }
-
-    protected void clickSaveAndCheckErrors(WebElement saveButton) {
-        saveButton.click();
-        List<String> errors = getErrors();
-        if (!errors.isEmpty()) {
-            throw new RuntimeException(Joiner.on(";").join(errors));
-        }
-    }
-
-    protected void clickSaveAndExpectErrors(WebElement saveButton) {
-        saveButton.click();
-        List<String> errors = getErrors();
-        if (errors.isEmpty()) {
-            throw new RuntimeException("Errors expected, none found.");
-        }
-    }
-
-    public List<String> getErrors() {
-        List<WebElement> errorSpans = getDriver().findElements(By.xpath("//span[@class='errors']"));
-        return WebElementUtil.elementsToText(errorSpans);
     }
 
     protected <P extends AbstractPage> P refreshPageUntil(P currentPage, Predicate<WebDriver> predicate) {
