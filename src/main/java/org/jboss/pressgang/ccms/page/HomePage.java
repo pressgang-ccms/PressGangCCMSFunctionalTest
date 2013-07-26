@@ -23,14 +23,20 @@ package org.jboss.pressgang.ccms.page;
 
 import org.jboss.pressgang.ccms.page.topic.CreateTopicPage;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
 public class HomePage extends AbstractPage {
+
+    @FindBy(id = "CreateTopicBuilderNavigationButton")
+    private WebElement createTopicNavButton;
 
     public HomePage(final WebDriver driver) {
         super(driver);
     }
 
     public CreateTopicPage goToCreateTopic() {
-        return gotToMainMenuPage("Create Topic", CreateTopicPage.class);
+        createTopicNavButton.click();
+        return new CreateTopicPage(getDriver());
     }
 }

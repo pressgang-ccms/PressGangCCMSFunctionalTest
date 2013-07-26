@@ -37,6 +37,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.openqa.selenium.support.ui.FluentWait;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +58,7 @@ public class AbstractPage {
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, 10), this);
         this.driver = driver;
         ajaxWaitForTenSec = WebElementUtil.waitForTenSeconds(driver);
-        shortcutMenuItems = shortcutMenu.findElements(By.className("gwt-PushButton"));
+        //TODO get IDs added for top panel items or adapt to new structure
     }
 
     public WebDriver getDriver() {
@@ -75,7 +76,7 @@ public class AbstractPage {
 
     public <P> P goToMenuPage(String menuItemText, Class<P> pageClass, List<WebElement> menuItems,
                               List<String> navigationMenuItemNames) {
-        log.info("click {} and go to page {}", menuItemText, pageClass.getName());
+        log.info("Click {} and go to page {}", menuItemText, pageClass.getName());
         int menuItemIndex = navigationMenuItemNames.indexOf(menuItemText);
 
         Preconditions.checkState(menuItemIndex >= 0, menuItemText + " is not available in navigation menu");
@@ -98,7 +99,7 @@ public class AbstractPage {
     }
 
     public <P> P goToUrl(String url, P page) {
-        log.info("go to url: {}", url);
+        log.info("Go to url: {}", url);
         driver.get(url);
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, 30), page);
         return page;

@@ -1,6 +1,5 @@
 package org.jboss.pressgang.ccms.page.topic;
 
-import com.google.common.base.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.page.AbstractPage;
 import org.openqa.selenium.By;
@@ -24,17 +23,21 @@ public class CreateTopicPage extends AbstractPage {
     private List<String> topActionPanelMenuItemNames = Collections.emptyList();
     private String lastCreatedTopicId = "";
 
-    @FindBy(id = "TopActionPanel")
-    private WebElement topActionPanelMenu;
+    @FindBy(className = "TopActionPanel")
+    private WebElement topActionPanel;
+
+    @FindBy(id = "TopicSearchResultsSave")
+    private WebElement saveButton;
 
     public CreateTopicPage(WebDriver driver) {
         super(driver);
-        topActionPanelMenuItems = topActionPanelMenu.findElements(By.className("gwt-PushButton"));
+        topActionPanelMenuItems = topActionPanel.findElements(By.className("gwt-ToggleButton"));
         topActionPanelMenuItemNames = getNavigationMenuItemNames(topActionPanelMenuItems, findDivButtonNamesByHtmlFaceText());
     }
 
     public SaveTopicDialog clickSave() {
-        return goToMenuPage("Save", SaveTopicDialog.class, topActionPanelMenuItems, topActionPanelMenuItemNames);
+        saveButton.click();
+        return new SaveTopicDialog<CreateTopicPage>(getDriver(), this);
     }
 
     public PropertiesPane goToPropertiesPane() {

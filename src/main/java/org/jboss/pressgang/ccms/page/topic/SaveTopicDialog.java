@@ -24,30 +24,26 @@ import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFa
 @Slf4j
 public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
 
-    private Class<T> currentPaneClass;
-    private List<WebElement> actionButtons = Collections.emptyList();
-    private List<String> actionButtonNames = Collections.emptyList();
+    private T currentPane;
 
-    @FindBy(className = "DialogBoxOKCancelPanel")
-    private WebElement dialogBoxButtonPanel;
+    @FindBy(id = "OKSaveDialog")
+    private WebElement okButton;
 
-    @FindBy(xpath = "//div[@class='gwt-DialogBox']//textarea[@class='gwt-TextArea'")
+    @FindBy(id = "MessageSaveDialog")
     private WebElement messageInput;
 
-    @FindBy(xpath = "//div[@class='gwt-DialogBox']//input[@class='gwt-TextBox'")
+    @FindBy(id = "UsernameSaveDialog'")
     private WebElement userInput;
 
-    @FindBy(id = "gwt-uid-1")
+    @FindBy(id = "MinorChangeSaveDialog")
     private WebElement minorChangeRadioButton;
 
-    @FindBy(id = "gwt-uid-2")
+    @FindBy(id = "MajorChangeSaveDialog")
     private WebElement majorChangeRadioButton;
 
-    public SaveTopicDialog(WebDriver driver, Class<T> currentPaneClass) {
+    public SaveTopicDialog(WebDriver driver, T currentPane) {
         super(driver);
-        this.currentPaneClass = currentPaneClass;
-        actionButtons = dialogBoxButtonPanel.findElements(By.className("gwt-PushButton"));
-        actionButtonNames = getNavigationMenuItemNames(actionButtons, findDivButtonNamesByHtmlFaceText());
+        this.currentPane = currentPane;
     }
 
     public SaveTopicDialog inputMessage(String message) {
@@ -73,7 +69,7 @@ public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
 
     @SuppressWarnings("unchecked")
     public T clickOk() {
-        T createTopicPage = goToMenuPage("OK", currentPaneClass, actionButtons, actionButtonNames);
+        okButton.click();
         Alert alert = new WebDriverWait(getDriver(), THIRTY_SEC).until(ExpectedConditions.alertIsPresent());
         if (alert == null) {
             log.warn("Alert expected but not found");
@@ -87,7 +83,7 @@ public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
             topicId = matcher.group();
         }
         alert.accept();
-
-        return (T) createTopicPage.setLastCreatedTopicId(topicId);
+        currentPane.setLastCreatedTopicId(topicId);
+        return currentPane;
     }
 }
