@@ -18,7 +18,7 @@ import org.junit.runner.RunWith;
 @Extensions({ScreenshotExtension.class, TimestampFormatterExtension.class, CustomResourceExtension.class})
 public class CreateNewTopicTest {
 
-    public CreateTopicPage createNewTopic(String username, String title) {
+    public CreateTopicPage createNewTopic(final String username, final String title) {
         return new CreateTopicWorkflow().createNewTopic(TestConstants.VALID_TOPIC_XML, Optional.<String>absent(),
                 Optional.of(username), true, title);
     }
