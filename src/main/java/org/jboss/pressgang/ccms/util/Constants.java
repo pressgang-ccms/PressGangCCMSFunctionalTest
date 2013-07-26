@@ -31,7 +31,7 @@ import org.openqa.selenium.WebElement;
 public enum Constants {
     // Constants used by page and workflow objects
     propFile("setup.properties"),
-    pressGangInstance("pressang.instance.url"),
+    pressGangInstance("pressgang.instance.url"),
     webDriverType("webdriver.type"),
     chrome, firefox, htmlUnit;
 
