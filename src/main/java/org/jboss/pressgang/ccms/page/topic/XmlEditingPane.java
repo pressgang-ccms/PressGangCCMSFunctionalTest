@@ -17,6 +17,7 @@ public class XmlEditingPane extends CreateTopicPage {
     }
 
     public XmlEditingPane inputXml(String xml) {
+        topicInputTextArea.clear();
         topicInputTextArea.sendKeys(xml);
         return this;
     }

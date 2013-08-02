@@ -11,7 +11,6 @@ public class CreateTopicWorkflow extends AbstractWebWorkflow {
 
     public CreateTopicPage createNewTopic(String xml, Optional<String> message, Optional<String> user,
                                           boolean majorChange, String title) {
-        // TODO add click Create Topic (within sub menu) once it exists
         SaveTopicDialog saveTopicDialog = goToHome().goToCreateTopic().goToXmlEditingPane().inputXml(xml)
                 .goToPropertiesPane().inputTopicTitle(title).clickSave();
         if (message.isPresent()) {

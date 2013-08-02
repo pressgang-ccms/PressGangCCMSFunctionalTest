@@ -23,13 +23,9 @@ package org.jboss.pressgang.ccms.page;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.util.WebElementUtil;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -37,12 +33,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.openqa.selenium.support.ui.FluentWait;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFaceText;
 
 @Slf4j
 public class AbstractPage {
@@ -58,7 +50,6 @@ public class AbstractPage {
         PageFactory.initElements(new AjaxElementLocatorFactory(driver, 10), this);
         this.driver = driver;
         ajaxWaitForTenSec = WebElementUtil.waitForTenSeconds(driver);
-        //TODO get IDs added for top panel items or adapt to new structure
     }
 
     public WebDriver getDriver() {
@@ -67,35 +58,6 @@ public class AbstractPage {
 
     public String getTitle() {
         return driver.getTitle();
-    }
-
-    public <T> List<T> getNavigationMenuItemNames(List<WebElement> menuItems, Function<WebElement, T> transformFunction) {
-        Collection<T> result = Collections2.transform(menuItems, transformFunction);
-        return ImmutableList.copyOf(result);
-    }
-
-    public <P> P goToMenuPage(String menuItemText, Class<P> pageClass, List<WebElement> menuItems,
-                              List<String> navigationMenuItemNames) {
-        log.info("Click {} and go to page {}", menuItemText, pageClass.getName());
-        int menuItemIndex = navigationMenuItemNames.indexOf(menuItemText);
-
-        Preconditions.checkState(menuItemIndex >= 0, menuItemText + " is not available in navigation menu");
-
-        menuItems.get(menuItemIndex).click();
-        return PageFactory.initElements(driver, pageClass);
-    }
-
-    public List<String> getMainNavigationMenuItemNames() {
-        if (!menuItemTexts.isPresent()) {
-            List<String> resultList = getNavigationMenuItemNames(shortcutMenuItems, findDivButtonNamesByHtmlFaceText());
-            menuItemTexts = Optional.of(resultList);
-            return resultList;
-        }
-        return menuItemTexts.get();
-    }
-
-    public <P> P gotToMainMenuPage(String menuItemText, Class<P> pageClass) {
-        return goToMenuPage(menuItemText, pageClass, shortcutMenuItems, getMainNavigationMenuItemNames());
     }
 
     public <P> P goToUrl(String url, P page) {

@@ -3,20 +3,16 @@ package org.jboss.pressgang.ccms.page.topic;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.page.AbstractPage;
 import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.jboss.pressgang.ccms.util.Constants.THIRTY_SEC;
-import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFaceText;
 
 /**
  * @author kamiller@redhat.com (Katie Miller)
@@ -32,7 +28,7 @@ public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
     @FindBy(id = "MessageSaveDialog")
     private WebElement messageInput;
 
-    @FindBy(id = "UsernameSaveDialog'")
+    @FindBy(id = "UsernameSaveDialog")
     private WebElement userInput;
 
     @FindBy(id = "MinorChangeSaveDialog")

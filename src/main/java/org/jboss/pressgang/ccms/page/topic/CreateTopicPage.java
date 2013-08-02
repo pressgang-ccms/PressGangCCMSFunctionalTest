@@ -2,16 +2,11 @@ package org.jboss.pressgang.ccms.page.topic;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pressgang.ccms.page.AbstractPage;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import java.util.Collections;
-import java.util.List;
-
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFaceText;
 
 /**
  * @author kamiller@redhat.com (Katie Miller)
@@ -19,20 +14,19 @@ import static org.jboss.pressgang.ccms.util.Constants.findDivButtonNamesByHtmlFa
 @Slf4j
 public class CreateTopicPage extends AbstractPage {
 
-    private List<WebElement> topActionPanelMenuItems = Collections.emptyList();
-    private List<String> topActionPanelMenuItemNames = Collections.emptyList();
     private String lastCreatedTopicId = "";
 
-    @FindBy(className = "TopActionPanel")
-    private WebElement topActionPanel;
+    @FindBy(id = "XMLEditingTopicEditButton")
+    private WebElement xmlEditingButton;
 
-    @FindBy(id = "TopicSearchResultsSave")
+    @FindBy(id = "PropertiesTopicEditButton")
+    private WebElement propertiesButton;
+
+    @FindBy(id = "SaveTopicEditButton")
     private WebElement saveButton;
 
     public CreateTopicPage(WebDriver driver) {
         super(driver);
-        topActionPanelMenuItems = topActionPanel.findElements(By.className("gwt-ToggleButton"));
-        topActionPanelMenuItemNames = getNavigationMenuItemNames(topActionPanelMenuItems, findDivButtonNamesByHtmlFaceText());
     }
 
     public SaveTopicDialog clickSave() {
@@ -41,11 +35,13 @@ public class CreateTopicPage extends AbstractPage {
     }
 
     public PropertiesPane goToPropertiesPane() {
-        return goToMenuPage("Properties", PropertiesPane.class, topActionPanelMenuItems, topActionPanelMenuItemNames);
+        propertiesButton.click();
+        return new PropertiesPane(getDriver());
     }
 
     public XmlEditingPane goToXmlEditingPane() {
-        return goToMenuPage("XML Editing", XmlEditingPane.class, topActionPanelMenuItems, topActionPanelMenuItemNames);
+        xmlEditingButton.click();
+        return new XmlEditingPane(getDriver());
     }
 
     public CreateTopicPage setLastCreatedTopicId(String id) {
@@ -58,6 +54,4 @@ public class CreateTopicPage extends AbstractPage {
     public String getLastCreatedTopicId() {
         return lastCreatedTopicId;
     }
-
-    // TODO model search results part of the page
 }

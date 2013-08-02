@@ -21,11 +21,8 @@
 
 package org.jboss.pressgang.ccms.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 @Slf4j
 public enum Constants {
@@ -55,14 +52,5 @@ public enum Constants {
 
     public String value() {
         return value;
-    }
-
-    public static Function<WebElement, String> findDivButtonNamesByHtmlFaceText() {
-        return new Function<WebElement, String>() {
-            @Override
-            public String apply(WebElement div) {
-                return (div.findElement(By.className("html-face")).getText());
-            }
-        };
     }
 }
