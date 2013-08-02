@@ -47,7 +47,7 @@ public class AbstractPage {
     WebElement shortcutMenu;
 
     public AbstractPage(final WebDriver driver) {
-        PageFactory.initElements(new AjaxElementLocatorFactory(driver, 10), this);
+        PageFactory.initElements(new AjaxElementLocatorFactory(driver, 30), this);
         this.driver = driver;
         ajaxWaitForTenSec = WebElementUtil.waitForTenSeconds(driver);
     }

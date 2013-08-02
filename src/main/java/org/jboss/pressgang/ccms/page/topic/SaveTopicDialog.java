@@ -71,11 +71,13 @@ public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
             log.warn("Alert expected but not found");
         }
         assert (alert != null);
-        Matcher matcher = Pattern.compile("[0-9]+$").matcher(alert.getText());
+        String alertText = alert.getText();
+        Matcher matcher = Pattern.compile("\\d+$").matcher(alertText);
         String topicId = "";
-        if (!matcher.matches()) {
-            log.warn("Could not find new Topic ID");
+        if (!matcher.find()) {
+            log.warn("Could not find new Topic ID in alert message: {}", alertText);
         } else {
+            log.info("Created topic with ID {}", topicId);
             topicId = matcher.group();
         }
         alert.accept();
