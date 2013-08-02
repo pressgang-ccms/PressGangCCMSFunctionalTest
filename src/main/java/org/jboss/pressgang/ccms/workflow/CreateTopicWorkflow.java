@@ -9,8 +9,8 @@ import org.jboss.pressgang.ccms.page.topic.SaveTopicDialog;
  */
 public class CreateTopicWorkflow extends AbstractWebWorkflow {
 
-    public CreateTopicPage createNewTopic(String xml, Optional<String> message, Optional<String> user,
-                                          boolean majorChange, String title) {
+    public String createNewTopic(String xml, Optional<String> message, Optional<String> user,
+                                 boolean majorChange, String title) {
         SaveTopicDialog saveTopicDialog = goToHome().goToCreateTopic().goToXmlEditingPane().inputXml(xml)
                 .goToPropertiesPane().inputTopicTitle(title).clickSave();
         if (message.isPresent()) {
@@ -19,6 +19,7 @@ public class CreateTopicWorkflow extends AbstractWebWorkflow {
         if (user.isPresent()) {
             saveTopicDialog = saveTopicDialog.inputUser(user.get());
         }
-        return saveTopicDialog.selectChangePriority(majorChange).clickOk();
+        CreateTopicPage page = saveTopicDialog.selectChangePriority(majorChange).clickOk();
+        return page.getLastCreatedTopicId();
     }
 }

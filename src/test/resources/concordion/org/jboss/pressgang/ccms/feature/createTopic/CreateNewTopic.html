@@ -6,10 +6,10 @@
             Given a user <span c:set="#username">testUser</span> who is on the PressGang CCMS Home page
         </p>
         <p>
-            When they select Create Topic, enter valid XML and the topic title <span c:set="#title">Test title</span> and click <span c:execute="#createTopicPage = createNewTopic(#username, #title)">Save</span>, entering their username
+            When they select Create Topic, enter valid XML and the topic title <span c:set="#title">Test title</span> and click <span c:execute="#topicId = createNewTopic(#username, #title)">Save</span>, entering their username
         </p>
         <p>
-            Then a topic with that title is saved and <span c:assertFalse="#createTopicPage.lastCreatedTopicId.isEmpty">a topic ID is allocated</span>.
+            Then a topic with that title is saved and <span c:assertFalse="#topicId.isEmpty()">a topic ID is allocated</span>.
         </p>
         <span ext:screenshot=""/>
         <p class="info">

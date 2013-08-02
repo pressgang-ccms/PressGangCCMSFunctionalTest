@@ -77,8 +77,8 @@ public class SaveTopicDialog<T extends CreateTopicPage> extends AbstractPage {
         if (!matcher.find()) {
             log.warn("Could not find new Topic ID in alert message: {}", alertText);
         } else {
-            log.info("Created topic with ID {}", topicId);
             topicId = matcher.group();
+            log.info("Created topic with ID {}", topicId);
         }
         alert.accept();
         currentPane.setLastCreatedTopicId(topicId);
